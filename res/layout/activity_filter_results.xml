@@ -1,0 +1,109 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    tools:context=".FilterResultsActivity" >
+
+    <TextView
+        android:id="@+id/tvAdvancedOptionsLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:text="@string/advancedSearchOptionsLabel"
+        android:textSize="@dimen/bigText" />
+
+    <TextView
+        android:id="@+id/tvImageSize"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/tvAdvancedOptionsLabel"
+        android:layout_below="@+id/tvAdvancedOptionsLabel"
+        android:layout_marginTop="28dp"
+        android:text="@string/imageSizeLabel"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+    <TextView
+        android:id="@+id/tvColorFilter"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/tvImageSize"
+        android:layout_below="@+id/tvImageSize"
+        android:layout_marginTop="28dp"
+        android:text="@string/colorFilterLabel"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+    <TextView
+        android:id="@+id/tvImageType"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/tvColorFilter"
+        android:layout_below="@+id/tvColorFilter"
+        android:layout_marginTop="28dp"
+        android:text="@string/imageTypeLabel"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+    <TextView
+        android:id="@+id/tvSiteFilter"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/tvImageType"
+        android:layout_below="@+id/tvImageType"
+        android:layout_marginTop="28dp"
+        android:text="@string/siteFilterLabel"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+    <Spinner
+        android:id="@+id/sImageSize"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_below="@+id/tvAdvancedOptionsLabel"
+        android:layout_marginTop="20dp"
+        android:layout_toRightOf="@+id/tvImageType">
+        <requestFocus />
+    </Spinner>
+
+    <Spinner
+        android:id="@+id/sColorFilter"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_toRightOf="@+id/tvImageType"
+        android:layout_below="@+id/sImageSize"
+        android:layout_marginTop="20dp" />
+
+    <Spinner
+        android:id="@+id/sImageType"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@+id/tvImageType"
+        android:layout_below="@+id/sColorFilter"
+        android:layout_alignParentRight="true"
+        android:layout_marginTop="20dp" />
+
+    <EditText
+        android:id="@+id/etSiteFilter"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@+id/tvImageType"
+        android:layout_alignParentRight="true"
+        android:layout_below="@+id/sImageType"
+        android:layout_marginTop="20dp"
+        android:ems="10"
+        android:hint="@string/siteFilterHint" />
+
+    <Button
+        android:id="@+id/btnApply"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:onClick="onApplyClick"
+        android:text="@string/applyButtonText" />
+    
+</RelativeLayout>
