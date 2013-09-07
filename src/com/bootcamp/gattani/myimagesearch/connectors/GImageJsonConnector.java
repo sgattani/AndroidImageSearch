@@ -32,8 +32,8 @@ public class GImageJsonConnector {
 
 	public void getNextPageAsync(JsonHttpResponseHandler handler){
 		if(request == null) return;
+		request.setStart(request.getStart() + 1);
 		Log.d("DEBUG", request.toString());
-		request.setStart(request.getStart() + request.getRsz());
 		client.get(request.toString(), handler);
 	}
 

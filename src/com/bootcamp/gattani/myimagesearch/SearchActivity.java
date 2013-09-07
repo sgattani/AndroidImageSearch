@@ -17,18 +17,15 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.AbsListView;
-import android.widget.AbsListView.OnScrollListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.GridView;
-import android.widget.ListView;
 import android.widget.Toast;
 
 import com.bootcamp.gattani.myimagesearch.adapters.ImageResultArrayAdapter;
 import com.bootcamp.gattani.myimagesearch.connectors.GImageJsonConnector;
+import com.bootcamp.gattani.myimagesearch.listeners.EndlessScrollListener;
 import com.bootcamp.gattani.myimagesearch.models.ImageResult;
 import com.bootcamp.gattani.myimagesearch.models.JsonImageRequest;
 import com.bootcamp.gattani.myimagesearch.models.JsonImageRequestFilter;
@@ -37,7 +34,6 @@ import com.loopj.android.http.JsonHttpResponseHandler;
 public class SearchActivity extends Activity {
 	private static final int FILTER_REQUEST_ID = 101;
 	private GridView gvSearchResults;
-	private Button btnSearch;
 	private EditText etSearchString;
 	private ImageResultArrayAdapter imageAdapter;
 	
@@ -45,10 +41,6 @@ public class SearchActivity extends Activity {
 	private JsonImageRequest imgRequest;
 	private JsonImageRequestFilter imgFilter;
 	
-	private static boolean stopLoading = false;
-	
-	private Toast loading;
-	private Toast eor;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -59,10 +51,7 @@ public class SearchActivity extends Activity {
 		setupScrolling();
 		imageResults = new ArrayList<ImageResult>();
 		imageAdapter = new ImageResultArrayAdapter(this, imageResults);
-		gvSearchResults.setAdapter(imageAdapter);
-		
-		loading = Toast.makeText(getBaseContext(), "loading ...", Toast.LENGTH_SHORT);
-		eor = Toast.makeText(getBaseContext(), "End of Results", Toast.LENGTH_SHORT);
+		gvSearchResults.setAdapter(imageAdapter);		
 	}
 
 	@Override
@@ -98,7 +87,7 @@ public class SearchActivity extends Activity {
 		if(imgFilter != null){
 			imgRequest.setFilter(imgFilter);
 		}
-		
+				
 		//get new images
 		getImages(true);
 		
@@ -111,7 +100,7 @@ public class SearchActivity extends Activity {
 
 			@Override
 			public void onItemClick(AdapterView<?> adapter, View parent, int position, long rowId) {
-				Intent i = new Intent(getApplicationContext(), ImageDisplayActivity.class);
+				Intent i = new Intent(getBaseContext(), ImageDisplayActivity.class);
 				ImageResult imageResult = imageResults.get(position);
 				i.putExtra("result", imageResult);
 				startActivity(i);
@@ -126,16 +115,15 @@ public class SearchActivity extends Activity {
 				imgFilter = (JsonImageRequestFilter)data.getSerializableExtra("filter");
 			}
 			
+			//refetch the images with filter
 			if(imgRequest != null){
 				if(imgFilter != null){
 					imgRequest.setFilter(imgFilter);					
 				} else {
 					imgRequest.clearFilter();
 				}
-
-				//disable scroll loading till we refetch images
-				stopLoading = true;
-				
+				//start at page 0 again
+				imgRequest.setStart(0);
 				//clear previous images here since we are applying filter
 				getImages(true);
 			}
@@ -143,37 +131,13 @@ public class SearchActivity extends Activity {
 	}
 
     private void setupScrolling(){
-    	gvSearchResults.setOnScrollListener(new OnScrollListener() {
-    	    private int lastFirstVisibleItem;
-    	    private boolean isScrollingUp = false;
-
-    		@Override
-			public void onScrollStateChanged(AbsListView view, int scrollState) {
-			      if(scrollState == 0) 
-			    	  Log.i("a", "scrolling stopped...");
-
-			      if (view.getId() == gvSearchResults.getId()) {
-			    	  final int currentFirstVisibleItem = gvSearchResults.getFirstVisiblePosition();
-			    	  if (currentFirstVisibleItem > lastFirstVisibleItem) {
-			    		  isScrollingUp = false;
-			    		  Log.i("a", "scrolling down...");
-			    	  } else if (currentFirstVisibleItem < lastFirstVisibleItem) {
-			    		  isScrollingUp = true;
-			    		  Log.i("a", "scrolling up...");
-			    	  }
-
-			    	  lastFirstVisibleItem = currentFirstVisibleItem;
-			      }
-    		}
-			
-			@Override
-			public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-				int lastInScreen = firstVisibleItem + visibleItemCount;
-				if((lastInScreen == totalItemCount) && totalItemCount > 0 && !stopLoading && !isScrollingUp){
-					getNextImages();
-				}				
-			}
-		});
+    	gvSearchResults.setOnScrollListener(new EndlessScrollListener() {
+    	    @Override
+    	    public void loadMore(int page, int totalItemsCount) {
+    			Toast.makeText(getBaseContext(), "loading ...", Toast.LENGTH_SHORT).show();
+    	    	getNextImages();
+    	    }
+    	});
     }
     
     private void getImages(final boolean clear){
@@ -201,9 +165,7 @@ public class SearchActivity extends Activity {
 			public void onSuccess(JSONObject response){
 				populateImageResults(response);
 			}			
-		});
-    	
-		if (!stopLoading) loading.show(); else loading.cancel();	
+		});    	
     }
     
     /**
@@ -215,13 +177,11 @@ public class SearchActivity extends Activity {
     	try{
     		imageJsonResults = response.getJSONObject("responseData")
     							.getJSONArray("results");
-    		imageAdapter.addAll(ImageResult.fromJSONArray(imageJsonResults));
+    		ArrayList<ImageResult> results = ImageResult.fromJSONArray(imageJsonResults);
+    		imageAdapter.addAll(results);
     		Log.d("DEBUG", imageResults.toString());
-    		stopLoading = false;
     	} catch(JSONException e){
-			stopLoading = true;
-			loading.cancel(); 
-			eor.show();
+    		Toast.makeText(getBaseContext(), "End of Results", Toast.LENGTH_SHORT).show();
     	}
     }
 
@@ -233,7 +193,6 @@ public class SearchActivity extends Activity {
 	 */
 	private void setupElements(){
 		gvSearchResults = (GridView)findViewById(R.id.gvSearchResults);
-		btnSearch = (Button)findViewById(R.id.btnSearch);
 		etSearchString = (EditText)findViewById(R.id.etSearchString);
 	}
 

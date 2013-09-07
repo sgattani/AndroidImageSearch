@@ -3,9 +3,6 @@ package com.bootcamp.gattani.myimagesearch;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.lang3.StringUtils;
-
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
@@ -72,25 +69,11 @@ public class FilterResultsActivity extends Activity {
 		setupSpinnerItems();
 	}
 
-	@SuppressLint("DefaultLocale")
 	public void onApplyClick(View v){
-		String imgSize = StringUtils.isBlank(String.valueOf(sImageSize.getSelectedItem())) ? null : String.valueOf(sImageSize.getSelectedItem()).toLowerCase();
-		String colorFilter = StringUtils.isBlank(String.valueOf(sColorFilter.getSelectedItem())) ? null : String.valueOf(sColorFilter.getSelectedItem()).toLowerCase();
-		String imgType = StringUtils.isBlank(String.valueOf(sImageType.getSelectedItem())) ? null : String.valueOf(sImageType.getSelectedItem()).toLowerCase();
-		
-		if("none".equals(imgSize)){
-			imgSize = null;
-		}
-		
-		if("none".equals(colorFilter)){
-			colorFilter = null;
-		}
-
-		if("none".equals(imgType)){
-			imgType = null;
-		}
-		
-		String siteFilter = StringUtils.isBlank(String.valueOf(etSiteFilter.getText())) ? null : String.valueOf(etSiteFilter.getText()).toLowerCase();
+		String imgSize = sImageSize.getSelectedItem().toString();
+		String colorFilter = sColorFilter.getSelectedItem().toString();
+		String imgType = sImageType.getSelectedItem().toString();
+		String siteFilter = String.valueOf(etSiteFilter.getText()).toString();
 
 		filter = JsonImageRequestFilter.getJsonImageRequestFilterBuilder()
 				.filterByImageSize(imgSize)
@@ -104,7 +87,15 @@ public class FilterResultsActivity extends Activity {
 		setResult(Activity.RESULT_OK, i);
 		finish();
 	}
-	
+
+	public void onClearClick(View v){
+		filter = null;
+		Intent i = new Intent();
+		i.putExtra("filter", filter);
+		setResult(Activity.RESULT_OK, i);
+		finish();
+	}
+
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.

@@ -2,6 +2,10 @@ package com.bootcamp.gattani.myimagesearch.models;
 
 import java.io.Serializable;
 
+import org.apache.commons.lang3.StringUtils;
+
+import android.util.Log;
+
 public class JsonImageRequestFilter implements Serializable {
 
 	/**
@@ -101,7 +105,12 @@ public class JsonImageRequestFilter implements Serializable {
 			builder.append("&as_sitesearch=");
 			builder.append(as_sitesearch);
 		}
-		return builder.toString();
+		String filter = builder.toString();
+		Log.d("DEBUG", filter);
+		
+		if(StringUtils.isBlank(filter)) filter = null;
+		
+		return filter;
 	}
 	
 	public static JsonImageRequestFilterBuilder getJsonImageRequestFilterBuilder(){
@@ -135,9 +144,20 @@ public class JsonImageRequestFilter implements Serializable {
 		}
 		
 		public JsonImageRequestFilter build(){
-			return new JsonImageRequestFilter(imageSize,imageColor, imageType, site);
+			if(isBlankOrNone(imageSize) && isBlankOrNone(imageColor) && isBlankOrNone(imageType) && StringUtils.isBlank(site)){
+				return null;
+			} else {
+				return new JsonImageRequestFilter(imageSize,imageColor, imageType, site);				
+			}
 		}
-		
+
+		private boolean isBlankOrNone(String input){
+			if(StringUtils.isBlank(input) || "none".equalsIgnoreCase(input)){
+				return true;
+			}
+			
+			return false;
+		}
 	}
 	
 }
