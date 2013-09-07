@@ -49,9 +49,6 @@ public class SearchActivity extends Activity {
 		setupElements();
 		setOnImageClickListener();
 		setupScrolling();
-		imageResults = new ArrayList<ImageResult>();
-		imageAdapter = new ImageResultArrayAdapter(this, imageResults);
-		gvSearchResults.setAdapter(imageAdapter);		
 	}
 
 	@Override
@@ -87,9 +84,14 @@ public class SearchActivity extends Activity {
 		if(imgFilter != null){
 			imgRequest.setFilter(imgFilter);
 		}
-				
+		
+		//allocate memory and setup adapter for the results
+		imageResults = new ArrayList<ImageResult>();
+		imageAdapter = new ImageResultArrayAdapter(this, imageResults);
+		gvSearchResults.setAdapter(imageAdapter);		
+
 		//get new images
-		getImages(true);
+		getImages();
 		
 		//force hide the keyboard
 		hideSoftKeyBoard();
@@ -122,10 +124,13 @@ public class SearchActivity extends Activity {
 				} else {
 					imgRequest.clearFilter();
 				}
-				//start at page 0 again
+				//reset request to start at page 0 again
 				imgRequest.setStart(0);
-				//clear previous images here since we are applying filter
-				getImages(true);
+				//clear out the previous results
+				imageResults = new ArrayList<ImageResult>();
+				imageAdapter = new ImageResultArrayAdapter(this, imageResults);
+				gvSearchResults.setAdapter(imageAdapter);		
+				getImages();
 			}
 		}
 	}
@@ -135,19 +140,17 @@ public class SearchActivity extends Activity {
     	    @Override
     	    public void loadMore(int page, int totalItemsCount) {
     			Toast.makeText(getBaseContext(), "loading ...", Toast.LENGTH_SHORT).show();
-    	    	getNextImages();
+    	    	//add to the existing results
+    			getNextImages();
     	    }
     	});
     }
     
-    private void getImages(final boolean clear){
+    private void getImages(){
 		//redo the search
 		GImageJsonConnector.getInstance().getAsync(imgRequest, new JsonHttpResponseHandler() {
 			@Override
 			public void onSuccess(JSONObject response){
-				if(clear) {
-					imageAdapter.clear();
-				}
 				populateImageResults(response);
 			}
 		});

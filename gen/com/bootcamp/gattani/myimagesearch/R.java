@@ -25,13 +25,14 @@ public final class R {
         public static final int ic_launcher=0x7f020000;
     }
     public static final class id {
-        public static final int action_settings=0x7f08000e;
-        public static final int btnApply=0x7f080009;
-        public static final int btnSearch=0x7f08000c;
-        public static final int etSearchString=0x7f08000b;
+        public static final int action_settings=0x7f08000f;
+        public static final int btnApply=0x7f08000a;
+        public static final int btnClear=0x7f080009;
+        public static final int btnSearch=0x7f08000d;
+        public static final int etSearchString=0x7f08000c;
         public static final int etSiteFilter=0x7f080008;
-        public static final int gvSearchResults=0x7f08000d;
-        public static final int ivResult=0x7f08000a;
+        public static final int gvSearchResults=0x7f08000e;
+        public static final int ivResult=0x7f08000b;
         public static final int sColorFilter=0x7f080006;
         public static final int sImageSize=0x7f080005;
         public static final int sImageType=0x7f080007;
@@ -57,6 +58,7 @@ public final class R {
         public static final int advancedSearchOptionsLabel=0x7f050007;
         public static final int app_name=0x7f050000;
         public static final int applyButtonText=0x7f05000d;
+        public static final int clearButtonText=0x7f05000e;
         public static final int colorFilterLabel=0x7f050009;
         public static final int hello_world=0x7f050002;
         public static final int imageSizeLabel=0x7f050008;

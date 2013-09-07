@@ -4,8 +4,10 @@ import java.io.Serializable;
 
 import org.apache.commons.lang3.StringUtils;
 
+import android.annotation.SuppressLint;
 import android.util.Log;
 
+@SuppressLint("DefaultLocale")
 public class JsonImageRequestFilter implements Serializable {
 
 	/**
@@ -18,7 +20,13 @@ public class JsonImageRequestFilter implements Serializable {
 	private String imgtype;
 	private String as_sitesearch;
 	
-	public JsonImageRequestFilter(String imgsz, String imgcolor,
+	public static final String KEY_IMAGE_SIZE = "imgsz";
+	public static final String KEY_IMAGE_COLOR = "imgcolor";
+	public static final String KEY_IMAGE_TYPE = "imgtype";
+	public static final String KEY_AS_SITE = "as_sitesearch";
+	
+	//should only be constructed using the builder
+	private JsonImageRequestFilter(String imgsz, String imgcolor,
 			String imgtype, String as_sitesearch) {
 		super();
 		this.imgsz = imgsz;
@@ -91,15 +99,15 @@ public class JsonImageRequestFilter implements Serializable {
 		StringBuilder builder = new StringBuilder();
 		if (imgsz != null) {
 			builder.append("&imgsz=");
-			builder.append(imgsz);
+			builder.append(imgsz.toLowerCase());
 		}
 		if (imgcolor != null) {
 			builder.append("&imgcolor=");
-			builder.append(imgcolor);
+			builder.append(imgcolor.toLowerCase());
 		}
 		if (imgtype != null) {
 			builder.append("&imgtype=");
-			builder.append(imgtype);
+			builder.append(imgtype.toLowerCase());
 		}
 		if (as_sitesearch != null) {
 			builder.append("&as_sitesearch=");
@@ -144,7 +152,13 @@ public class JsonImageRequestFilter implements Serializable {
 		}
 		
 		public JsonImageRequestFilter build(){
-			if(isBlankOrNone(imageSize) && isBlankOrNone(imageColor) && isBlankOrNone(imageType) && StringUtils.isBlank(site)){
+			imageSize = !isBlankOrNone(imageSize) ? imageSize : null;
+			imageColor = !isBlankOrNone(imageColor) ? imageColor : null;
+			imageType = !isBlankOrNone(imageType) ? imageType : null;
+			site = !StringUtils.isBlank(site) ? site : null;
+
+			
+			if(imageSize == null && imageColor == null && imageType == null && site == null){
 				return null;
 			} else {
 				return new JsonImageRequestFilter(imageSize,imageColor, imageType, site);				

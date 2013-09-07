@@ -15,5 +15,6 @@
     <string name="siteFilterLabel">Site Filter</string>
     <string name="siteFilterHint">Enter Site</string>
     <string name="applyButtonText">Apply</string>
-        
+    <string name="clearButtonText">Clear</string>
+    
 </resources>

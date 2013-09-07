@@ -95,14 +95,27 @@
         android:layout_below="@+id/sImageType"
         android:layout_marginTop="20dp"
         android:ems="10"
+        android:singleLine="true"
+        android:imeOptions="actionDone"
         android:hint="@string/siteFilterHint" />
+
+	<Button
+	    android:id="@+id/btnClear"
+	    android:layout_width="wrap_content"
+	    android:layout_height="wrap_content"
+	    android:layout_alignParentBottom="true"
+	    android:layout_alignParentLeft="true"
+	    android:layout_marginBottom="2dp"
+	    android:onClick="onClearClick"
+	    android:text="@string/clearButtonText" />
 
     <Button
         android:id="@+id/btnApply"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
+        android:layout_alignBaseline="@+id/btnClear"
+        android:layout_alignBottom="@+id/btnClear"
+        android:layout_alignRight="@+id/etSiteFilter"
         android:onClick="onApplyClick"
         android:text="@string/applyButtonText" />
     

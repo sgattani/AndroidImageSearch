@@ -5,6 +5,7 @@ import java.util.List;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.View;
@@ -18,6 +19,7 @@ public class FilterResultsActivity extends Activity {
 	private static List<String> image_sizes = new ArrayList<String>();
 	private static List<String> color_filters = new ArrayList<String>();
 	private static List<String> image_types = new ArrayList<String>();
+	private static String KEY_GOOGLE_IMAGE_FILTER = "FilterResultsActivity.googleImageFilter";
 	
 	static {
 		image_sizes.add("None");
@@ -48,15 +50,13 @@ public class FilterResultsActivity extends Activity {
 		image_types.add("Photo");
 		image_types.add("Clipart");
 		image_types.add("Lineart");
-
 	}
 
 	private Spinner sImageSize;
 	private Spinner sColorFilter;
 	private Spinner sImageType;
 	private EditText etSiteFilter;
-	private JsonImageRequestFilter filter;
-	
+
 	ArrayAdapter<String> imageSizeArrayAdapter;
 	ArrayAdapter<String> colorFilterArrayAdapter;	
 	ArrayAdapter<String> imageTypeArrayAdapter;
@@ -67,41 +67,122 @@ public class FilterResultsActivity extends Activity {
 		setContentView(R.layout.activity_filter_results);
 		discoverElements();
 		setupSpinnerItems();
+		setupViewFromSavedPrefs();
 	}
 
-	public void onApplyClick(View v){
-		String imgSize = sImageSize.getSelectedItem().toString();
-		String colorFilter = sColorFilter.getSelectedItem().toString();
-		String imgType = sImageType.getSelectedItem().toString();
-		String siteFilter = String.valueOf(etSiteFilter.getText()).toString();
-
-		filter = JsonImageRequestFilter.getJsonImageRequestFilterBuilder()
-				.filterByImageSize(imgSize)
-				.filterByImageDominantColor(colorFilter)
-				.filterByImageType(imgType)
-				.filterBySite(siteFilter)
-				.build();
-		
-		Intent i = new Intent();
-		i.putExtra("filter", filter);
-		setResult(Activity.RESULT_OK, i);
-		finish();
+	@Override
+	protected void onResume(){
+		setupViewFromSavedPrefs();
+		super.onResume();
 	}
-
-	public void onClearClick(View v){
-		filter = null;
-		Intent i = new Intent();
-		i.putExtra("filter", filter);
-		setResult(Activity.RESULT_OK, i);
-		finish();
-	}
-
+	
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.
 		getMenuInflater().inflate(R.menu.filter_results, menu);
 		return true;
 	}
+
+	/**
+	 * Constructs a new filter, saves it and returns it to listening activity
+	 * @param v
+	 */
+	public void onApplyClick(View v){
+		String imgSize = sImageSize.getSelectedItem().toString();
+		String colorFilter = sColorFilter.getSelectedItem().toString();
+		String imgType = sImageType.getSelectedItem().toString();
+		String siteFilter = String.valueOf(etSiteFilter.getText()).toString();
+
+		JsonImageRequestFilter filter = JsonImageRequestFilter.getJsonImageRequestFilterBuilder()
+				.filterByImageSize(imgSize)
+				.filterByImageDominantColor(colorFilter)
+				.filterByImageType(imgType)
+				.filterBySite(siteFilter)
+				.build();
+		
+		//save the new filter
+		saveFilter(getSharedPreferences(KEY_GOOGLE_IMAGE_FILTER, MODE_PRIVATE), filter);
+		
+		//send it to the initiating activity
+		Intent i = new Intent();
+		i.putExtra("filter", filter);
+		setResult(Activity.RESULT_OK, i);
+		finish();
+	}
+
+	/**
+	 * Constructs a new NULL filter, saves it and returns it to listening activity
+	 * @param v
+	 */
+	public void onClearClick(View v){
+		JsonImageRequestFilter filter = null;
+		//save the new filter
+		saveFilter(getSharedPreferences(KEY_GOOGLE_IMAGE_FILTER, MODE_PRIVATE), filter);
+				
+		//send it to the initiating activity
+		Intent i = new Intent();
+		i.putExtra("filter", filter);
+		setResult(Activity.RESULT_OK, i);
+		finish();
+	}
+	
+	/** view and persistence helpers*/
+	
+	private void setupViewFromSavedPrefs(){
+		SharedPreferences pref = getSharedPreferences(KEY_GOOGLE_IMAGE_FILTER, MODE_PRIVATE);
+		JsonImageRequestFilter savedFilter = getSavedFilter(pref);
+		setupViewWithFilter(savedFilter);	
+	}
+
+	private void setupViewWithFilter(JsonImageRequestFilter filter){
+		if(filter == null){
+			sImageSize.setSelection(0, true);
+			sColorFilter.setSelection(0, true);
+			sImageType.setSelection(0, true);
+			etSiteFilter.setText("");
+			
+		} else {
+			sImageSize.setSelection(imageSizeArrayAdapter.getPosition(filter.getImgsz()), true);
+			sColorFilter.setSelection(colorFilterArrayAdapter.getPosition(filter.getImgcolor()), true);
+			sImageType.setSelection(imageTypeArrayAdapter.getPosition(filter.getImgtype()), true);
+			etSiteFilter.setText(filter.getAs_sitesearch());
+		}
+	}
+
+	private JsonImageRequestFilter getSavedFilter(SharedPreferences pref){
+		if(pref == null){
+			return null;
+		}
+		//pull values from shared preferences
+		String imageColor = pref.getString(JsonImageRequestFilter.KEY_IMAGE_COLOR, "None");
+		String imageType = pref.getString(JsonImageRequestFilter.KEY_IMAGE_TYPE, "None");
+		String imageSize = pref.getString(JsonImageRequestFilter.KEY_IMAGE_SIZE, "None");
+		String imageSite = pref.getString(JsonImageRequestFilter.KEY_AS_SITE, "");
+		
+		JsonImageRequestFilter savedFilter = JsonImageRequestFilter.getJsonImageRequestFilterBuilder()
+													.filterByImageDominantColor(imageColor)
+													.filterByImageSize(imageSize)
+													.filterByImageType(imageType)
+													.filterBySite(imageSite)
+													.build();
+		
+		return savedFilter;
+	}
+
+	private void saveFilter(SharedPreferences pref, JsonImageRequestFilter filter){
+		if(pref == null){
+			return;
+		}
+		//save preferences
+		SharedPreferences.Editor edt = pref.edit();
+		edt.putString(JsonImageRequestFilter.KEY_IMAGE_COLOR, filter != null ? filter.getImgcolor() : "None");
+		edt.putString(JsonImageRequestFilter.KEY_IMAGE_TYPE, filter != null ? filter.getImgtype() : "None");
+		edt.putString(JsonImageRequestFilter.KEY_IMAGE_SIZE, filter != null ? filter.getImgsz() : "None");
+		edt.putString(JsonImageRequestFilter.KEY_AS_SITE, filter != null ? filter.getAs_sitesearch() : "");
+		edt.commit();
+	}
+	
+	/** Initial setup helpers*/
 	
 	private void discoverElements(){
 		sImageSize = (Spinner)findViewById(R.id.sImageSize);

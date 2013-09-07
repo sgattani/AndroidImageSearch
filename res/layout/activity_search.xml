@@ -15,8 +15,11 @@
         android:layout_alignParentLeft="true"
         android:layout_alignParentTop="true"
         android:ems="10"
+        android:hint="@string/searchTermHintValue"
         android:imeOptions="actionDone"
-        android:hint="@string/searchTermHintValue" >
+        android:singleLine="true"
+        android:maxLines="1" >
+
     </EditText>
 
     <Button
